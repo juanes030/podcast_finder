@@ -1,39 +1,16 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import '../../../../core/theme/app_colors.dart';
-import '../../data/models/podcast_model.dart';
 import '../widgets/podcast_card.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../providers/podcast_providers.dart';
 
-class HomeScreen extends StatelessWidget {
+class HomeScreen extends ConsumerWidget {
   const HomeScreen({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    // Hardcoded podcasts for the base project
-    // Candidates will replace this with actual API calls
-    final hardcodedPodcasts = [
-      const PodcastModel(
-        id: 'hardcoded-1',
-        title: 'The Daily Tech',
-        publisher: 'Tech News Network',
-        imageUrl: 'https://picsum.photos/seed/daily/200',
-        description: 'Your source for daily technology news and updates.',
-      ),
-      const PodcastModel(
-        id: 'hardcoded-2',
-        title: 'Science Weekly',
-        publisher: 'Science Publishers',
-        imageUrl: 'https://picsum.photos/seed/science/200',
-        description: 'Explore the latest discoveries in science and research.',
-      ),
-      const PodcastModel(
-        id: 'hardcoded-3',
-        title: 'Business Insights',
-        publisher: 'Business Media Co',
-        imageUrl: 'https://picsum.photos/seed/business/200',
-        description: 'Deep dives into successful business strategies.',
-      ),
-    ];
-
+  Widget build(BuildContext context, WidgetRef ref) {
+    final podcastsAsync = ref.watch(podcastsProvider);
     return Scaffold(
       appBar: AppBar(
         title: const Text('PodcastFinder'),
@@ -60,23 +37,24 @@ class HomeScreen extends StatelessWidget {
           ),
           // Hardcoded list
           Expanded(
-            child: ListView.builder(
-              itemCount: hardcodedPodcasts.length,
-              itemBuilder: (context, index) {
-                final podcast = hardcodedPodcasts[index];
-                return PodcastCard(
-                  podcast: podcast,
-                  onTap: () {
-                    // TODO: Navigate to detail screen
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                        content: Text('Detail screen not implemented yet'),
-                        duration: Duration(seconds: 2),
-                      ),
-                    );
-                  },
-                );
-              },
+            child: podcastsAsync.when(
+              data: (podcasts) => ListView.builder(
+                itemCount: podcasts.length,
+                itemBuilder: (context, index) {
+                  final podcast = podcasts[index];
+                  return PodcastCard(
+                    podcast: podcast,
+                    onTap: () {
+                      context.pushNamed(
+                        'detail',
+                        pathParameters: {'id': podcast.id},
+                      );
+                    },
+                  );
+                },
+              ),
+              loading: () => const Center(child: CircularProgressIndicator()),
+              error: (err, stack) => Center(child: Text('Error: $err')),
             ),
           ),
         ],
