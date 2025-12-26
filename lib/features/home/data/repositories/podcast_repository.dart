@@ -1,30 +1,34 @@
-import '../models/podcast_model.dart';
+import 'package:dio/dio.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:podcast_finder/core/network/dio_client.dart';
+import 'package:podcast_finder/core/network/network_exceptions.dart';
+import 'package:podcast_finder/features/home/data/models/podcast_model.dart';
+
+final podcastRepositoryProvider = Provider<PodcastRepository>((ref) {
+  final dio = ref.read(dioProvider);
+  return PodcastRepository(dio);
+});
 
 class PodcastRepository {
-  Future<List<PodcastModel>> fetchPodcasts() async {
-    await Future.delayed(const Duration(milliseconds: 800)); // Simula latencia
-    return [
-      const PodcastModel(
-        id: 'hardcoded-1',
-        title: 'The Daily Tech',
-        publisher: 'Tech News Network',
-        imageUrl: 'https://picsum.photos/seed/daily/200',
-        description: 'Your source for daily technology news and updates.',
-      ),
-      const PodcastModel(
-        id: 'hardcoded-2',
-        title: 'Science Weekly',
-        publisher: 'Science Publishers',
-        imageUrl: 'https://picsum.photos/seed/science/200',
-        description: 'Explore the latest discoveries in science and research.',
-      ),
-      const PodcastModel(
-        id: 'hardcoded-3',
-        title: 'Business Insights',
-        publisher: 'Business Media Co',
-        imageUrl: 'https://picsum.photos/seed/business/200',
-        description: 'Deep dives into successful business strategies.',
-      ),
-    ];
+  final Dio _dio;
+
+  PodcastRepository(this._dio);
+
+Future<List<PodcastModel>> searchPodcasts({
+  required String query,
+}) async {
+  try {
+    final response = await _dio.get(
+      '/search',
+      queryParameters: {'q': query},
+    );
+
+    final results = response.data['results'] as List;
+    return results
+        .map((json) => PodcastModel.fromJson(json))
+        .toList();
+  } on DioException catch (e) {
+    throw NetworkException.fromDioError(e);
   }
+}
 }

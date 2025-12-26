@@ -1,60 +1,102 @@
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
-import '../../../../core/theme/app_colors.dart';
-import '../widgets/podcast_card.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../providers/podcast_providers.dart';
+import 'package:go_router/go_router.dart';
 
-class HomeScreen extends ConsumerWidget {
+import 'package:podcast_finder/core/utils/debouncer.dart';
+import 'package:podcast_finder/features/home/presentation/providers/podcast_search_provider.dart';
+import 'package:podcast_finder/features/home/presentation/widgets/podcast_card.dart';
+
+class HomeScreen extends ConsumerStatefulWidget {
   const HomeScreen({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final podcastsAsync = ref.watch(podcastsProvider);
+  ConsumerState<HomeScreen> createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends ConsumerState<HomeScreen> {
+  final Debouncer _debouncer =
+      Debouncer(duration: const Duration(milliseconds: 500));
+
+  @override
+  void initState() {
+    super.initState();
+
+    // 🔥 Cargar podcasts al abrir la app (query vacío)
+    Future.microtask(() {
+      ref.read(podcastSearchProvider.notifier).search('');
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final podcastsAsync = ref.watch(podcastSearchProvider);
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('PodcastFinder'),
       ),
       body: Column(
         children: [
-          // Search hint (not functional yet - candidates will implement)
-          Container(
+          // Search input
+          Padding(
             padding: const EdgeInsets.all(16),
-            child: const TextField(
-              enabled: false,
-              decoration: InputDecoration(
+            child: TextField(
+              decoration: const InputDecoration(
                 hintText: 'Search podcasts...',
                 prefixIcon: Icon(Icons.search),
-                suffixIcon: Tooltip(
-                  message: 'This feature needs to be implemented',
-                  child: Icon(
-                    Icons.info_outline,
-                    color: AppColors.primary,
-                  ),
-                ),
               ),
+              onChanged: (value) {
+                _debouncer(() {
+                  ref.read(podcastSearchProvider.notifier).search(value);
+                });
+              },
             ),
           ),
-          // Hardcoded list
+
+          // Podcast list
           Expanded(
             child: podcastsAsync.when(
-              data: (podcasts) => ListView.builder(
-                itemCount: podcasts.length,
-                itemBuilder: (context, index) {
-                  final podcast = podcasts[index];
-                  return PodcastCard(
-                    podcast: podcast,
-                    onTap: () {
-                      context.pushNamed(
-                        'detail',
-                        pathParameters: {'id': podcast.id},
-                      );
-                    },
+              data: (podcasts) {
+                if (podcasts.isEmpty) {
+                  return const Center(
+                    child: Text('No podcasts found'),
                   );
-                },
-              ),
+                }
+                return ListView.builder(
+                  itemCount: podcasts.length,
+                  itemBuilder: (context, index) {
+                    final podcast = podcasts[index];
+                    return PodcastCard(
+                      podcast: podcast,
+                      onTap: () {
+                        context.pushNamed(
+                          'detail',
+                          pathParameters: {'id': podcast.id},
+                        );
+                      },
+                    );
+                  },
+                );
+              },
               loading: () => const Center(child: CircularProgressIndicator()),
-              error: (err, stack) => Center(child: Text('Error: $err')),
+              error: (error, _) => Center(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      error.toString(),
+                      textAlign: TextAlign.center,
+                    ),
+                    const SizedBox(height: 12),
+                    ElevatedButton(
+                      onPressed: () {
+                        ref.read(podcastSearchProvider.notifier).search('');
+                      },
+                      child: const Text('Retry'),
+                    ),
+                  ],
+                ),
+              ),
             ),
           ),
         ],

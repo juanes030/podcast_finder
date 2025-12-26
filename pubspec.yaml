@@ -7,41 +7,29 @@ environment:
   sdk: '>=3.8.0 <4.0.0'
 
 dependencies:
+  cached_network_image: ^3.4.1
+  dio: ^5.7.0
   flutter:
     sdk: flutter
-  
-  # State Management
   flutter_riverpod: ^2.6.1
-  
-  # Networking
-  dio: ^5.7.0
-  
-  # Code Generation (solo para json_serializable)
-  json_annotation: ^4.9.0
-  
-  # Routing
   go_router: ^14.6.2
-  
-  # UI
-  cached_network_image: ^3.4.1
+  intl: ^0.20.2
+  json_annotation: ^4.9.0
   shimmer: ^3.0.0
-  
-  # Utils
-  intl: ^0.19.0
 
 dev_dependencies:
-  flutter_test:
-    sdk: flutter
-  
+
   # Code generation
   build_runner: ^2.4.13
-  json_serializable: ^6.8.0
-  
-  # Testing
-  mocktail: ^1.0.4
-  
+
   # Linting
   flutter_lints: ^5.0.0
+  flutter_test:
+    sdk: flutter
+  json_serializable: ^6.8.0
+
+  # Testing
+  mocktail: ^1.0.4
 
 flutter:
   uses-material-design: true
