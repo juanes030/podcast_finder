@@ -1,14 +1,11 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:podcast_finder/features/home/data/models/podcast_model.dart';
+import 'package:podcast_finder/features/home/data/repositories/podcast_repository.dart';
 
-import '../../data/models/podcast_model.dart';
-import '../../data/repositories/podcast_repository.dart';
-
-class PodcastSearchNotifier
-    extends StateNotifier<AsyncValue<List<PodcastModel>>> {
+class PodcastSearchNotifier extends StateNotifier<AsyncValue<List<PodcastModel>>> {
   final PodcastRepository _repository;
 
-  PodcastSearchNotifier(this._repository)
-      : super(const AsyncValue.data([]));
+  PodcastSearchNotifier(this._repository) : super(const AsyncValue.data([]));
 
   Future<void> search(String query) async {
     try {

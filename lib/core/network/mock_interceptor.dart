@@ -105,7 +105,7 @@ class MockInterceptor extends Interceptor {
 
   @override
   void onRequest(RequestOptions options, RequestInterceptorHandler handler) {
-    // 🔍 Search request
+    //Search request
     if (options.path.contains('/search')) {
       final query = options.queryParameters['q'] ?? '';
       handler.resolve(
@@ -118,7 +118,7 @@ class MockInterceptor extends Interceptor {
       return;
     }
 
-    // 🎧 Podcast detail request
+    //Podcast detail request
     if (options.path.contains('/podcasts/')) {
       final id = options.path.split('/').last;
       handler.resolve(
@@ -139,7 +139,7 @@ class MockInterceptor extends Interceptor {
   Map<String, dynamic> _getMockSearchResponse(String query) {
     final lowerQuery = query.toLowerCase();
 
-    // ✅ Query vacío → devolver todos
+    //Query vacío → devolver todos
     if (lowerQuery.isEmpty) {
       return {
         'count': _allPodcasts.length,
@@ -147,7 +147,7 @@ class MockInterceptor extends Interceptor {
       };
     }
 
-    // 🔍 Filtrar por título
+    //Filtrar por título
     final results = _allPodcasts.where((podcast) {
       final title = podcast['title'].toString().toLowerCase();
       return title.contains(lowerQuery);

@@ -26,8 +26,7 @@ class PodcastDetailModel {
     required this.episodes,
   });
 
-  factory PodcastDetailModel.fromJson(Map<String, dynamic> json) =>
-      _$PodcastDetailModelFromJson(json);
+  factory PodcastDetailModel.fromJson(Map<String, dynamic> json) => _$PodcastDetailModelFromJson(json);
 
   Map<String, dynamic> toJson() => _$PodcastDetailModelToJson(this);
 }

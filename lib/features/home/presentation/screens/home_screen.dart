@@ -20,8 +20,6 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   @override
   void initState() {
     super.initState();
-
-    // 🔥 Cargar podcasts al abrir la app (query vacío)
     Future.microtask(() {
       ref.read(podcastSearchProvider.notifier).search('');
     });
@@ -30,7 +28,6 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     final podcastsAsync = ref.watch(podcastSearchProvider);
-
     return Scaffold(
       appBar: AppBar(
         title: const Text('PodcastFinder'),
