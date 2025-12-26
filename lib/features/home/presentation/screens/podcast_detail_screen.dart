@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:podcast_finder/core/utils/date_formatter.dart';
-import 'package:podcast_finder/core/utils/duration_formatter.dart';
 import 'package:podcast_finder/features/home/presentation/providers/podcast_detail_provider.dart';
+import 'package:podcast_finder/features/home/presentation/widgets/episode_list_tile.dart';
 class PodcastDetailScreen extends ConsumerWidget {
   final String podcastId;
 
@@ -69,36 +68,8 @@ class PodcastDetailScreen extends ConsumerWidget {
               ),
               const SizedBox(height: 8),
               ...podcast.episodes.take(5).map(
-                (episode) => Card(
-                  margin: const EdgeInsets.symmetric(vertical: 6),
-                  child: ListTile(
-                    title: Text(episode.title),
-                    subtitle: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const SizedBox(height: 4),
-                        Text(
-                          DateFormatter.formatFromMilliseconds(
-                            episode.publishDateMs,
-                          ),
-                          style: Theme.of(context).textTheme.bodySmall?.copyWith(color: Colors.grey),
-                        ),
-                        const SizedBox(height: 2),
-                        Text(
-                          DurationFormatter.formatFromSeconds(
-                            episode.audioLengthSec,
-                          ),
-                          style: Theme.of(context).textTheme.bodySmall?.copyWith(color: Colors.grey),
-                        ),
-                        const SizedBox(height: 4),
-                        Text(
-                          episode.description,
-                          maxLines: 2,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      ],
-                    ),
-                  )
+                (episode) => EpisodeListTile(
+                  episode: episode,
                 ),
               ),
             ],
